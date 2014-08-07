@@ -1,0 +1,68 @@
+----------------------------------------------------------
+-------- Grand Unified Regularized Least Squares ---------
+----------------------------------------------------------
+
+Table of Contents
+=================
+
+- Introduction
+- Documentation
+
+Introduction
+============
+
+The GRAND UNIFIED REGULARIZED LEAST SQUARES software library comprises the following packages.
+
+-GURLS, a MATLAB software library for regression and (multiclass) classification 
+ based on the Regularized Least Squares (RLS) loss function. 
+ Datasets that fit into your computer's memory should be handled with this package.
+
+-bGURLS (b is for big), a MATLAB software library that allows to use RLS on very large
+ matrices by means of memory-mapped storage and a simple distributed task manager.
+
+-GURLS++, a C++ standalone implementation of GURLS, with additional simple API's for specific learning 
+ pipelines
+
+-bGURLS++, a  C++ standalone implementation of bGURLS.
+
+Documentation
+
+=============
+
+- Webpage 
+	the GURLS webpage can be found at: http://lcsl.mit.edu/gurls.html
+
+- Reference paper
+	Tacchetti,  Mallapragada, Santoro and Rosasco,
+	Gurls: a least squares-based library for state of the art supervised learning
+	accepted for publication on JMLR
+
+- Installation instructions can be found here:
+	https://github.com/LCSL/GURLS/wiki/2-Getting-Started
+
+- Quick intructions on how to run the libraries for a default case can be found here: 
+	https://github.com/LCSL/GURLS/wiki/2-Getting-Started#wiki-Hello_World
+
+- A User manual with several examples can be found here:
+	https://github.com/LCSL/GURLS/wiki/3-User-Manual#wiki-User_Manual
+
+- A collection of the most useful and common pipelines can be found here:
+	https://github.com/LCSL/GURLS/wiki/3-User-Manual#wiki-Examples
+
+- The list of all the available methods of the libraries can be found at
+	https://github.com/LCSL/GURLS/wiki/4-Available-methods
+
+- C++ Code Documentation can be found at: http://lcsl.github.io/GURLS/
+
+- Further Documentation
+	* Have a look at the README files of each individual package.
+	
+	* In gurls-manual.pdf you can find both the installation instructions and user manual, 
+          together with the Matlab and C++ Developer's Guide. GURLS is designed 
+	  for easy expansion. Give it a try!
+	
+	* In recursiveRLS-tutorial.pdf you can find a simple Tutorial for the Recursive 
+	  RLS API 
+
+	* The description of the available methods, demos and data for each package can be found at
+	 	https://github.com/CBCL/GURLS/wiki/4-Code-Description

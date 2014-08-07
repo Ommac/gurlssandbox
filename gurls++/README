@@ -1,0 +1,203 @@
+-----------------------------------------------------------------
+-------- GURLS - Grand Unified Regularized Least Squares --------
+-----------------------------------------------------------------
+
+
+Table of Contents
+=================
+
+- Introduction
+- Installation
+   - Dependencies
+   - Automatic dependencies building
+   - Installing GURLS++ on Linux
+   - Installing GURLS++ on Windows
+   - Configuration
+- Documentation
+
+
+Introduction
+============
+
+GURLS++ is a C++ software library for regression and (multiclass) classification 
+based on the Regularized Least Squares (RLS) loss function.
+
+The GURLS webpage can be found at: http://lcsl.mit.edu/gurls.html
+
+
+Installation
+============
+
+You can download the precompiled binaries here
+	https://github.com/CBCL/GURLS/tree/master/precompiled-binaries
+and start using GURLS++, however such a version may be not optimized for your machine.
+
+If you want a version which is optimized for your machine, follow the steps described in the rest of the section.
+ 
+1) Dependencies
+---------------
+
+GURLS++ depends on several external libraries:
+
+- A Blas/Lapack implementation. Currently we support:
+  - AMD’s ACML (only for 64 bits);
+  - ATLAS;
+  - Intel’s MKL;
+  - Netlib’s reference implementation: http://www.netlib.org/blas and http://www.netlib.org/lapack/;
+  - OpenBLAS;
+  - Boost’s (v1.46.0 or higher) libraries serialization, date_time, filesystem, unit_test_framework, system, signals.
+
+2) Automatic dependencies building
+----------------------------------
+
+The GURLS++ CMake configurator suppports automatic downloading and building 
+of all dependencies by setting the GURLS_USE_EXTERNALS variable to ON (See section 
+Configuriation below for details). 
+Due to licence restrictions, on Windows this "Superbuild" system does not permit to automatically 
+install a blas/lapack implementation so users must install manually blas/lapack libraries.
+
+3) Installing GURLS++ on Linux
+-------------------------------
+
+Below we describe how to build and install GURLS++ on Ubuntu (tested on Ubuntu 12.04). 
+For other distributions, the same packages must be installed with the distribution-specific method.
+
+1. Install the cmake build system (www.cmake.org/)
+ 
+ $ sudo apt-get install cmake cmake-curses-gui
+ 
+2. To link against some Blas and Lapack implementations you may need a fortran compiler e.g. for gfortran:
+
+ $ sudo apt-get install gfortran
+
+3. Create a build directory (e.g. "build") for GURLS++
+
+ $ cd $GURLS_ROOT
+ $ mkdir build
+ 
+4. Run cmake into the build directory
+
+ $ cd build
+ $ ccmake ..
+
+The last command will show the CMake interface, which must be used to set the values of some variables 
+used for building and installing GURLS++. See the section Configuration below for more information on 
+these variables and how to set them to appropriate values.
+
+5. Start building
+
+ $ make
+
+6. Install the library to the path defined at configuration time
+
+ $ make install
+
+The command wil also install to the same path all the dependencies that user chose to build automatically.
+
+4) Installing GURLS++ on Windows
+--------------------------------
+
+Below we describe how to build and install GURLS++ on Windows with Visual Studio (tested with 
+VS Express 2010 and VS Express 2008).
+
+1. Install the CMake build system downloading the installer from http://cmake.org/cmake/resources/software.html.
+
+2. Install your favourite Blas/Lapack implementation. Under Windows AMD’s ACML is probably the easiest choice, 
+since they provide the library binaries for free, however it supports only compilers with 64 bits.
+
+3. Create a build directory (e.g. $GURLSROOT/build).
+
+4. Run the CMake GUI. You will have to set the source directory to $GURLSROOT directory, and the build directory 
+   to the directory created at the previous step. After pressing the configure button, you will have 
+   to chose the generator for the project (e.g. Visual Studio 10). 
+   On Windows you may encounter the error message "error in conﬁguration process, project files may be invalid", 
+   check that the you have writing rights to the path specified in the variable CMAKE_INSTALL_PREFIX. 
+   If this is not the case, change such a variable to a folder to which you have writing rights and 
+   press 'configure'. Now you have to set the values of some variables used for building and installing the 
+   libraries according to your preferences. See the section Configuration below for more information on these 
+   variables and how to set them to appropriate values. 
+   After having configured the build options, press the generate button to create the solution file.
+
+5. Open the generated solution under Visual Studio and build it.
+
+6. Optional: install GURLS++ by explicitely building the install project included in the solution 
+  (it is not automatically built when building the solution).
+
+
+5) Configuring GURLS++
+----------------------
+
+The configuration step is carried out using CMake. In the following we describe the configuration process 
+using the GUI of CMake, e.g. under Windows or Mac. A similar process shall be followed when using the 
+command-line interface.
+
+1. Press 'configure', and CMake will try to determine the correct values for all variables. 
+
+2. After the first configuration a list of variables is displayed. The following variables should be checked:
+    - CMAKE_INSTALL_PREFIX The path where the library will be installed to;
+    - GURLS_BUILD_GURLSPP (ON): Build GURLS++. If set to ON CMake also evaluates the variables
+    - GURLSPP_BUILD_DEMO (ON): Enable the building of the GURLS++ demo programs;
+    - GURLSPP_BUILD_DOC (OFF): Enable the building of the GURLS++documentation using doxygen;
+    - GURLS_USE_BINARY_ARCHIVES (ON): If set to ON, all data structures are stored in binary (rather than text) 
+      files, saving storage space and time;
+    - GURLS_USE_EXTERNALS (ON): Enable automatic building of external dependencies.
+      If set to ON CMake also evaluates the variables
+        - GURLS_USE_EXTERNAL_BLAS_LAPACK (ON): Enable automatic building of blas and lapack, 
+          using OpenBLAS (LINUX-ONLY).
+        - GURLS_USE_EXTERNAL_BOOST (ON): Enable automatic building of boost. If set to OFF, press 'advanced' 
+          to visualize the variables related to the BOOST library, typically you have to specify only the 
+          variable BOOST_INCLUDE_DIR;
+        For each variable which is set to OFF, you must specify the path to the corresponding library.
+      If GURLS_USE_EXTERNALS is set to OFF you have to manually specify the path to all of the above libraries.
+
+3. If CMake does not find some required library, an error message will be displayed. Change the path to required 
+   library and press 'configure' again.
+   
+4. In the main screen you may change a number of variables. Most of them can be left unchanged, but some must be 
+   set to appropriate values. The following are the variables whose values should be checked:
+    - BLAS_LAPACK_IMPLEMENTATION. Allows user to specify an implementation of the Blas/Lapack routines. 
+      Available choices are: ACML, ATLAS, MKL, NETLIB, OPENBLAS. Depending on the choice you make, 
+      CMake will try to find the libraries in standard locations in the system. Normally this process should run 
+      fine, however, in case the libraries have been installed in some non-standard directory, you may have 
+      to manually specify their location.
+      
+5. Once all variables have been set, press 'configure' again, and CMake will check the settings. As in step (3), 
+   if something is wrong an error message will be displayed and you will have to go back to the main screen to 
+   tweak the configuration.
+
+6. When the settings are correct, the option ’generate’ will appear. Press 'generate'. CMake will generate the 
+   files and exit.
+
+After the build files (e.g. the Makefile under Linux) have been generated, you can proceed as explained above.
+
+
+Documentation
+=============
+
+- Quick intructions on how to run the libraries for a default case can be found here: 
+	https://github.com/CBCL/GURLS/wiki/2-Getting-Started#wiki-Hello_World_in_GURLS-2
+
+- A User manual with several examples can be found here:
+	https://github.com/CBCL/GURLS/wiki/3-User-Manual#wiki-GURLS_Usage-2
+	
+- Demos
+	GURLS++ has an extensively commented demo in the "demo" subdirectory. 
+	Have a look, and run GURLSloocvprimal.cpp. We feel this is the best way to learn how to use these packages.
+
+- A collection of the most useful and common pipelines can be found here:
+	https://github.com/CBCL/GURLS/wiki/3-User-Manual#wiki-Examples
+	
+- C++ Code Documentation can be found at: http://cbcl.github.io/GURLS/
+
+- Description of the available methods, demos and data for each package can be found at
+	https://github.com/CBCL/GURLS/wiki/4-Code-Description#wiki-GURLS-2
+
+- Further documentation	
+	* In gurls-manual.pdf you can find both the installation instructions and user manual, 
+          together with the Developer's Guide. GURLS is designed for easy expansion. Give it a try!
+	  Remark: GURLS++ is still under development please contact the authors before starting your own development.
+	
+	* In recursiveRLS-tutorial.pdf you can find a simple Tutorial for the Recursive RLS API 
+	
+    * In wrappers-tutorial.pdf you can find a simple Tutorial for the gurls++ weappers
+	
