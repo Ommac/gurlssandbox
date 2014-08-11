@@ -97,6 +97,16 @@ public:
       * \returns Matrix of predicted labels
       */
     virtual gMat2D<T>* eval(const gMat2D<T> &X) = 0;
+	
+    /**
+      * Estimates performance
+      *
+      * \param[in] y Test labels matrix
+      * \param[in] pred Prediction labels matrix
+      * \param[in] perfname Performance type string
+      * \returns Matrix of performance
+      */
+    virtual gMat2D<T>* perf(const gMat2D<T> &y, gMat2D<T> &pred, const std::string perfname);
 
     /**
       * Returns a const reference to the options structure
@@ -110,12 +120,26 @@ public:
       */
     virtual void saveModel(const std::string &fileName);
 
-    /**
-      * Loads a computed model from a file
+	 /**
+      * Sets the file in which the model will be saved
       *
-      * \param fileName name of the file containing the data to load
+      * \param fileName name of the file where data will be saved
       */
-    virtual void loadModel(const std::string &fileName);
+	virtual void setSavefile(const std::string &fileName);
+
+    /**
+      * Loads a computed model from file
+      *
+      * \param fileName name of the file containing the GurlsOptionList to load
+      */
+    virtual void loadOpt(const std::string &fileName);
+
+    /**
+      * Loads a computed model from memory
+      *
+      * \param opt GurlsOptionsList to be loaded
+      */
+	virtual void loadOpt(GurlsOptionsList &opt, bool owner=true);
 
 //    virtual void exportModel(const std::string &fileName);
 //    virtual void importModel(const std::string &fileName);
@@ -125,25 +149,35 @@ public:
       * \param[in] value
       */
     virtual void setNparams(unsigned long value);
-
     /**
       *
       * \param[in] value
       */
-    virtual void setParam(double value);
-
+    virtual void setParam(double value);	
     /**
       *
       * \param[in] value
       */
     virtual void setSplitProportion(double value);
-
     /**
       *
       * \param[in] value
       */
     virtual void setProblemType(ProblemType value);
-
+    /**
+      *
+      * \param[out] problem type
+      */
+	ProblemType getProblemType();
+    /**
+      * Estimates problem type
+      *
+      * \param[in] X Input data matrix
+      * \param[in] Y Labels matrix      
+	  * \param[out] probType estimated problem type
+      * \returns Estimated problem type
+      */	
+	ProblemType problemTypeFromData( const gMat2D<T> &X, const gMat2D<T> &y);
 
 protected:
     /**
@@ -153,7 +187,7 @@ protected:
 
     std::string name;       ///< Name of the options structure
     GurlsOptionsList *opt;  ///< Options structure where information about initial training is stored
-
+	bool isowner;
     ProblemType probType;   ///< Problem type
 
 };
@@ -175,7 +209,6 @@ public:
       */
     KernelWrapper(const std::string& name);
 
-
     /**
       * Initial parameter selection and training
       *
@@ -183,7 +216,6 @@ public:
       * \param Y Labels matrix
       */
     virtual void train(const gMat2D<T> &X, const gMat2D<T> &y) = 0;
-
 
     /**
       *

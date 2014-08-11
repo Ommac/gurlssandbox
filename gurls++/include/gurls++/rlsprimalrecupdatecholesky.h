@@ -94,7 +94,7 @@ GurlsOptionsList* RLSPrimalRecUpdateCholesky<T>::execute(const gMat2D<T>& X, con
     const unsigned long d = X.cols();
     const unsigned long t = Y.cols();
 
-    // Xty = X'*y;  // WARNING: Maybe Xty can be retrieved from the opt structure
+    // Xty = X'*y;
     T* Xty;
     Xty = new T[d*t];
     dot(X.getData(), Y.getData(), Xty, n, d, n, t, d, t, CblasTrans, CblasNoTrans, CblasColMajor);
@@ -109,82 +109,40 @@ GurlsOptionsList* RLSPrimalRecUpdateCholesky<T>::execute(const gMat2D<T>& X, con
     const gMat2D<T>& prev_R = opt.getOptValue<OptMatrix<gMat2D<T> > >("optimizer.R");
     gMat2D<T>* R = new gMat2D<T>(prev_R);
     
-    // DEBUG ///////////////////
-    std::cout << "-----------------------------------------------" << std::endl;
-    std::cout << "R" << std::endl;
-    std::cout.precision(3);
-    std::cout.width(5);
-    for (int foo = 0; foo < 8 ; foo++){
-        for (int bar = 0; bar < 8; bar++){
-     
-            std::cout<< (*R)(foo , bar) << "\t";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "-----------------------------------------------" << std::endl;
-    ////////////////////////////
-    
     //  b = opt.rls.b;
     const gMat2D<T>& prev_b = opt.getOptValue<OptMatrix<gMat2D<T> > >("optimizer.b");
     gMat2D<T>* b = new gMat2D<T>(prev_b);
     
-//     gMat2D<T> Xdisp(X);
-
     // Update R
-    for(unsigned long i=0; i<n; ++i)
+    for(unsigned long i=0; i<n; i++)
     {
-
-        // Get pointer to the i-th input sample x_i
-        double* input =  X[i].getData();    // WARNING: check!
-        
-        std::cout << "Update sample" << std::endl;
-        std::cout << "d = " << d << std::endl;
-
-        std::cout << "(input): " << (input)<< std::endl;
-        std::cout << "(X[i].getData()): "<< (X[i].getData()) << std::endl;
-        std::cout << "(X.getData()): "<< (X.getData()) << std::endl;
-        
-        std::cout << "*(input): "<< *(input) << std::endl;
-        std::cout << "*(X[i].getData()): " << *(X[i].getData()) << std::endl;
-        
-        for (unsigned long j = 0 ; j<10 ; j++)
-        {
-//             double a = Xdisp(i,j);
-          //  std::cout << *(X[i].getData() + j) << "\t";
-            std::cout << input[j] << "\t";
-        }    
-        for (unsigned long j = 0 ; j<10 ; j++)
-        {
-//             double a = Xdisp(i,j);
-            std::cout << *(X[i].getData() + j) << "\t";
-        //    std::cout << input[j] << "\t";
-        }   
-        std::cout << std::endl;
-        
-        int asd;
-        std::cin>>asd;
+        // Get pointer to the i-th input
+//         gVec<T> v( X[i] );
+//         double* input =  v.getData();
+        double* input = (double*) X.getData() + i;
         
         // Rank-1 Cholesky update of R
         cholupdate(*R, *input, 1);
 
         // Update b = b + X[i]ty
-        // TODO: Maybe it can be done in 1-shot outside the for loop.
+        // TODO: Maybe the update of b can be done in 1-shot outside the for loop.
         gMat2D<T> transposedinput(d, 1);
         X.transpose(transposedinput);
-        gMat2D<T> res( d , t );                 // Temp var for result storage
+        gMat2D<T> res( d , t );          // Temporary variable for result storage
         
-        dot( transposedinput , Y , res );       // WARNING: To be verified.
+        dot( transposedinput , Y , res );
         *b = (*b) + res;
     }
 
     // Update W
-    copy(W->getData(), b->getData(), W->getSize());    // WARNING
+    
+    copy(W->getData(), b->getData(), W->getSize());
     
     // Forward substitution
-    mldivide_squared(R->getData(), W->getData(), d, d, W->rows(), W->cols(), CblasTrans);    //(R'\Xty) WARNING
+    mldivide_squared(R->getData(), W->getData(), d, d, W->rows(), W->cols(), CblasTrans);    //(R'\Xty) 
     
     // Backward substitution
-    mldivide_squared(R->getData(), W->getData(), d, d, W->rows(), W->cols(), CblasNoTrans);  //R\(R'\Xty) WARNING    
+    mldivide_squared(R->getData(), W->getData(), d, d, W->rows(), W->cols(), CblasNoTrans);  //R\(R'\Xty)     
 
     GurlsOptionsList* optimizer = new GurlsOptionsList("optimizer");
 
@@ -198,10 +156,7 @@ GurlsOptionsList* RLSPrimalRecUpdateCholesky<T>::execute(const gMat2D<T>& X, con
     optimizer->addOpt("b", new OptMatrix<gMat2D<T> >(*b));
     
     delete[] Xty;
-    //delete[] W;
-    //delete[] R_mat;
-    //delete[] R;
-
+    
     return optimizer;
 }
 

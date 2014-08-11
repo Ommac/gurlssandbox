@@ -84,7 +84,7 @@ public:
       * \param[in] X Input data vector
       * \param[in] Y Labels vector
       */
-    void update(const gVec<T> &X, const gVec<T> &y);
+    void update(const gMat2D<T> &X, const gMat2D<T> &y);
 
     /**
       * Estimates label for an input matrix

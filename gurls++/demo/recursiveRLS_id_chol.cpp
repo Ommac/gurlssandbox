@@ -58,7 +58,7 @@ typedef double T;
 /**
   * Main function
   *
-  * The data is already split into training and test set, and each set is
+  * The data is already split into training and test/recursive update set, and each set is
   * in the form of an input data matrix and a output labels vector.
   * Parameter selection and initial RLS estimation is carried out on a first subset of the training set.
   * Iterative RLS updates are performed on the test set after out-of-sample predictions, simulating online learning.
@@ -104,18 +104,19 @@ int main(int argc, char* argv[])
         ytr.readCSV(ytrFileName);
         yte.readCSV(yteFileName);
         
-        // Get dimensions
-        const unsigned long ntr = Xtr.rows();
-        const unsigned long nte = Xte.rows();
-        const unsigned long d = Xtr.cols();
-        const unsigned long t = ytr.cols();
+        // Get data dimensions
+        const unsigned long ntr = Xtr.rows();   // Number of training samples
+        const unsigned long nte = Xte.rows();   // Number of test samples
+        const unsigned long d = Xtr.cols();     // Number of features (dimensionality)
+        const unsigned long t = ytr.cols();     // Number of outputs
 
         // Compute output variance for each output on the test set
         // outVar = var(yte);
-        gMat2D<T> varCols(gMat2D<T>::zeros(1,t));    // Matrix containing the column-wise variances
-        gVec<T>* sumCols_v = yte.sum(COLUMNWISE); // Vector containing the column-wise sums
-        gMat2D<T> sumCols(sumCols_v->getData(), 1, t, 1); // Matrix containing the column-wise sum
-        gMat2D<T> meanCols((sumCols)/nte);   // Matrix containing the column-wise mean
+        gMat2D<T> varCols(gMat2D<T>::zeros(1,t));          // Matrix containing the column-wise variances
+        gVec<T>* sumCols_v = yte.sum(COLUMNWISE);          // Vector containing the column-wise sum
+        gMat2D<T> meanCols(sumCols_v->getData(), 1, t, 1); // Matrix containing the column-wise sum
+        meanCols /= nte;        // Matrix containing the column-wise mean
+        
         if (verbose) std::cout << "Mean of the output columns: " << std::endl << meanCols << std::endl;
         
         for (int i = 0; i < nte; i++)
@@ -123,7 +124,7 @@ int main(int argc, char* argv[])
             gMat2D<T> ytei(yte[i].getData(), 1, t, 1);
             varCols += (ytei - meanCols) * (ytei - meanCols); // NOTE: Temporary assignment
         }
-        varCols /= ( nte - 1 );     // Compute unbiased sample variance
+        varCols /= nte;     // Compute variance
         if (verbose) std::cout << "Variance of the output columns: " << std::endl << varCols << std::endl;
 
         // Initialize model
@@ -143,66 +144,46 @@ int main(int argc, char* argv[])
         gMat2D<T> nSE(gMat2D<T>::zeros(1, t));
         gMat2D<T> nMSE_rec(gMat2D<T>::zeros(nte, t));
    
-        //for(unsigned long i=0; i<nte; ++i)
-        for(unsigned long i=0; i<10000; ++i)
+        for(unsigned long i=0; i<nte; ++i)
         {
             //-----------------------------------
             //          Prediction
             //-----------------------------------
-            // Read a row from the file where the test set is stored and update estimator
-
-            if(verbose) std::cout << "Entered prediction/update loop" << std::endl;
-            
+	  
+            // Read a row from the file where the test set is stored and update estimator 
             getRow(Xte.getData(), nte, d, i, Xnew.getData());
-            if(verbose) std::cout << "Got Xte row " << Xnew << std::endl;
-
             getRow(yte.getData(), nte, t, i, ynew.getData());
-            if(verbose) std::cout << "Got yte row " << ynew << std::endl;
-            
+	    
             // Test on the incoming sample
-            resptr = estimator.eval(Xnew);  // WARNING: Wrong prediction
-            if(verbose) std::cout << "Prediction:" << std::endl << *resptr << std::endl;
-
+            resptr = estimator.eval(Xnew);
+            
             // Store result in matrix yte_pred
             copy(yte_pred.getData() + i , resptr->getData(), t , nte, 1 );
-            if(verbose) std::cout << "Result stored in matrix yte_pred" << std::endl;  
             
             // Compute nMSE and store
-
-            //nSE = nSE + ( ynew - *resptr )*( ynew - *resptr ) / varCols;  //WARNING: "/" operator works like matlab's "\". Should be the opposite.
-            nSE = nSE + varCols / ( ynew - *resptr )*( ynew - *resptr ) ;   
+            //WARNING: "/" operator works like matlab's "\".
+            nSE += varCols / ( ynew - *resptr )*( ynew - *resptr ) ;   
 
             gMat2D<T> tmp = nSE  / (i+1);
-            if(verbose) std::cout << "nMSE @ i" << std::endl << tmp << std::endl;  
-            //if(verbose) std::cout << "Copy nMSE @ i to matrix nMSE_rec" << std::endl;  
             copy(nMSE_rec.getData() + i, tmp.getData(), t, nte, 1);
         
             //-----------------------------------
             //             Update
             //-----------------------------------
-            
-            if(verbose) std::cout << "Recursive update" << std::endl;
-            
-            // Copy to gVec to update
-            getRow(Xte.getData(), nte, d, i, Xnew_v.getData());
-            getRow(yte.getData(), nte, t, i, ynew_v.getData());
+                        
+            // Copy update sample into Xnew, ynew
+            getRow(Xte.getData(), nte, d, i, Xnew.getData());
+            getRow(yte.getData(), nte, t, i, ynew.getData());
                 
             // Update estimator with a new input pair
-            std::cout << i << std::endl;
-            estimator.update(Xnew_v, ynew_v); // WARNING: Possible bug in update
-            
-            // Debug stop           
-            if(verbose)
-            {
-                int c;
-                std::cin >> c;
-            }
+            if(verbose) std::cout << "Update # " << i+1 << std::endl;
+            estimator.update(Xnew, ynew);
         }
         
         // Compute average nMSE between outputs
         gVec<T>* avg_nMSE_rec_v = nMSE_rec.sum(ROWWISE);
         *avg_nMSE_rec_v /= t;
-        gMat2D<T> avg_nMSE_rec(avg_nMSE_rec_v->getData() , nte , 1 , 1 );   // Store in matrix
+        gMat2D<T> avg_nMSE_rec(avg_nMSE_rec_v->getData() , nte , 1 , 1 );
 
         // Save output matrices
         std::cout << "Saving predictions matrix..." << std::endl;
@@ -212,6 +193,7 @@ int main(int argc, char* argv[])
         avg_nMSE_rec.saveCSV("avg_nMSE_rec.txt");
         nMSE_rec.saveCSV("nMSE_rec.txt");
 
+        std::cout << "Done! Now closing." << std::endl;
         return EXIT_SUCCESS;
     }
     catch (gException& e)

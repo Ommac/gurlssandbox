@@ -124,26 +124,6 @@ int main(int argc, char *argv[])
 
         // run gurls for testing
         G.run(Xte, yte, *opt, jobId1);
-        
-        // Results visualization
-        /*** Debug code
-        
-        opt->printAll();
-        int optType =  (*(opt->getOpt("perf.acc"))).getType();        // Get referenced option type
-        OptMatrix<gMat2D<double> >* temp = (opt->getOptAs<OptMatrix<gMat2D<double> > >("perf.acc"));
-        int ty = temp->getMatrixType();
-        cout << "Matrix type: " << ty << endl;
-        double *acc = temp->getValue().getData();
-        
-        ***/
-
-        double *acc = (opt->getOptAs<OptMatrix<gMat2D<double> > >("perf.acc"))->getValue().getData();
-        
-        cout << "Accuracy (precision recall):" << endl;
-        // Print accuracy values
-        for (int i=0 ; i<4 ; i++)
-            cout << acc[i] << "\t";
-        cout << endl;
 
     }
     catch (gException& e)

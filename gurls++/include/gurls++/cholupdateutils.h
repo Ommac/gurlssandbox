@@ -13,30 +13,18 @@
  * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU General
- * Public License for more details
+ * Public LicenseNULL for more details
  */
 
-/*
-#include <cassert>
-#include <stdexcept>
-#include <cmath>
-*/
-
 #include "gurls++/gmat2d.h"
-//#include "gmat2d.h"
-//#include "gmat2d.h"
 
 namespace gurls {
-    
-/*    dchud(rPtr, d, d, xPtr, 0, 0, 0,
-          0, 0, c, s,
-          (unsigned char) rtrans, 0);*/
 
 void dchud(double* r, int ldr, int p, double* x, double* z, int ldz, int nz,
            double* y, double* rho, double* c, double* s,
            unsigned char rtrans, unsigned char ztrans) {
   
-    // WARNING: This function should be tested and documented!
+    // WARNING: This function only updates R. The update of z and rho is not implemented.
     //
     // Performs the rank-1 update of the Cholesky factor r with the input vector x by applying p Givens rotations.
     //
@@ -47,10 +35,10 @@ void dchud(double* r, int ldr, int p, double* x, double* z, int ldz, int nz,
     // p:           Dimension of vector x and order of matrix r
     // x:           Update sample buffer
     // z:           Known terms matrix
-    // ldz:         Number of columns of z, probably
-    // nz:          Number of rows of z, probably
+    // ldz:         Number of columns of z
+    // nz:          Number of rows of z
     // y:           Output labels vector
-    // rho:         On entry, the norms of the residual vectors that are to be updated. On exit, RHO has been updated. If RHO(i) is                             negative on entry then it is not changed.
+    // rho:         On entry, the norms of the residual vectors that are to be updated. On exit, RHO has been updated. If RHO(i) is negative on entry then it is not changed.
     // c:           Cosines of the transforming rotations
     // s:           Sines of the transforming rotations
     // rtrans:      Bool to transpose r
@@ -86,17 +74,11 @@ void dchud(double* r, int ldr, int p, double* x, double* z, int ldz, int nz,
         // Apply Givens rotation
         if((int)i < p - 1) {
             
-//             int n = p - i - 1;
-//             int one = 1;
-//             int step = stp;
-//             double* xcoord = tbuff + stp;
-//             double* ycoord = work + i + 1;
             int n = p - i - 1;
             int one = 1;
             int step = stp;
             double* xcoord = tbuff + stp;
             double* ycoord = work + i + 1;
-            
             double* costh = c + i;
             double* sinth = s + i;
             
@@ -107,7 +89,7 @@ void dchud(double* r, int ldr, int p, double* x, double* z, int ldz, int nz,
     
     free(work);
         
-    
+    // WARNING: The update of z and rho is not implemented
     // update z and rho if applicable
 //     if(nz > 0) {
 //         work = (double*) malloc(nz * sizeof(double));
@@ -139,13 +121,10 @@ void dchud(double* r, int ldr, int p, double* x, double* z, int ldz, int nz,
 //     }
 }
 
-
-//template <typename T>
-//void cholupdate(gMat2D<T>& R, const double& x, bool rtrans) {
-//WARNING: cholupdate works with double parameters, not generic typename T
-
-void cholupdate(gMat2D<double>& R, double& x, bool rtrans) {         // WARNING: x should be of type const double&, but for compatibility with dchud "const" is omitted.
-
+// WARNING: cholupdate works with double parameters, not generic typename T
+// WARNING: x should be of type const double&, but for compatibility with dchud "const" is omitted.
+void cholupdate(gMat2D<double>& R, double& x, bool rtrans) {  
+   
     // rPtr points to the vectorized R matrix
     double* rPtr = R.getData();
     
@@ -159,8 +138,8 @@ void cholupdate(gMat2D<double>& R, double& x, bool rtrans) {         // WARNING:
     double* s = new double[d];  
 
     // dchud should be called in place of gsl_linalg_cholesky_update, since GSL is not available in GURLS
-    dchud(rPtr, 0, d, xPtr, NULL, 0, 0,
-          NULL, NULL, c, s,
+    dchud(rPtr, 0, d, xPtr, 0, 0, 0,
+          0, 0, c, s,
           (unsigned char) rtrans, 0);
     
     // Store the updated matrix in R    
