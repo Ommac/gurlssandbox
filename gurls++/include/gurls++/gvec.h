@@ -152,7 +152,7 @@ public:
 #endif // DEBUG
         return at(i);
     }
-    
+
     /**
       * Returns a subvector containing all values beginning from \c start
       */

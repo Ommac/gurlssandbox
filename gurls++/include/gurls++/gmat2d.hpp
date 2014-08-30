@@ -65,6 +65,7 @@ gMat2D<T>::gMat2D(T* buf, unsigned long r, unsigned long c,  bool owner) : numco
     {
         this->isowner = owner;
         this->data = buf;
+		this->size = r*c;
     }
 }
 
@@ -757,7 +758,6 @@ void gMat2D<T>::readCSV(const std::string& fileName, bool colMajor)
             for (tokenizer::iterator it = tokens.begin(); it != tokens.end(); ++it)
                 tf.push_back(boost::lexical_cast<T>(*it));
 
-            
             matrix.push_back(tf);
             ++rows;
         }

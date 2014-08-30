@@ -173,18 +173,18 @@ GurlsOptionsList* RLSPrimalRecInitCholesky<T>::execute(const gMat2D<T>& X, const
     std::cout << "R:" << std::endl;
     std::cout << *R_mat << std::endl;
     // DEBUG ///////////////////
-    std::cout << "-----------------------------------------------" << std::endl;
-    std::cout << "----- Initial R (10x10 submatrix) -----" << std::endl;
-    std::cout.precision(3);
-    std::cout.width(5);
-    for (int foo = 0; foo < 8 ; foo++){
-        for (int bar = 0; bar < 8; bar++){
-     
-            std::cout<< (*R_mat)(foo , bar) << "\t";
-        }
-        std::cout << std::endl;
-    }
-    std::cout << "-----------------------------------------------" << std::endl;
+//     std::cout << "-----------------------------------------------" << std::endl;
+//     std::cout << "----- Initial R (10x10 submatrix) -----" << std::endl;
+//     std::cout.precision(3);
+//     std::cout.width(5);
+//     for (int foo = 0; foo < 8 ; foo++){
+//         for (int bar = 0; bar < 8; bar++){
+//      
+//             std::cout<< (*R_mat)(foo , bar) << "\t";
+//         }
+//         std::cout << std::endl;
+//     }
+//     std::cout << "-----------------------------------------------" << std::endl;
     ////////////////////////////
     
     //  cfr.W = W;
