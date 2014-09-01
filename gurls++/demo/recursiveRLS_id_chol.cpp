@@ -170,10 +170,6 @@ int main(int argc, char* argv[])
             //-----------------------------------
             //             Update
             //-----------------------------------
-                        
-            // Copy update sample into Xnew, ynew
-            getRow(Xte.getData(), nte, d, i, Xnew.getData());
-            getRow(yte.getData(), nte, t, i, ynew.getData());
                 
             // Update estimator with a new input pair
             if(verbose) std::cout << "Update # " << i+1 << std::endl;
