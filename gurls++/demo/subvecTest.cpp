@@ -21,7 +21,7 @@ int main()
 
     // Initialize N
     M.submatrix(N , 10 , 5);
-    cout << "N initialized: " <<endl<< N << endl;
+    cout << "N inisubvecTest.cpptialized: " <<endl<< N << endl;
 
     // Initialize P
     gVec<T> tmpCol(10);

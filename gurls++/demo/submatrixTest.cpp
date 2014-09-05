@@ -17,6 +17,6 @@ int main()
     gMat2D<T> N(gMat2D<T>::zeros(10,5));
 
     // Initialize N
-    M.submatrix(N , 10 , 5);
+    N.submatrix(M , 10 , 5);
     cout << "N initialized: " << endl << N << endl;
 }

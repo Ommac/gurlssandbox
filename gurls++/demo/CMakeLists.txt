@@ -20,8 +20,17 @@ include_directories(${Gurls++_INCLUDE_DIRS})
 #add_executable(recursiveRLS recursiveRLS.cpp)
 #target_link_libraries(recursiveRLS ${Gurls++_LIBRARIES})
 
-add_executable(recursiveRLS_id_chol recursiveRLS_id_chol.cpp)
-target_link_libraries(recursiveRLS_id_chol ${Gurls++_LIBRARIES})
+#add_executable(recursiveRLS_id_chol recursiveRLS_id_chol.cpp)
+#target_link_libraries(recursiveRLS_id_chol ${Gurls++_LIBRARIES})
+
+# add_executable(subvecTest subvecTest.cpp)
+# target_link_libraries(subvecTest ${Gurls++_LIBRARIES})
+
+# add_executable(submatrixTest submatrixTest.cpp)
+# target_link_libraries(submatrixTest ${Gurls++_LIBRARIES})
+
+add_executable(subVecTest2 subVecTest2.cpp)
+target_link_libraries(subVecTest2 ${Gurls++_LIBRARIES})
 
 #add_executable(gp gp.cpp)
 #target_link_libraries(gp ${Gurls++_LIBRARIES})
